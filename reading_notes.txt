@@ -1,0 +1,25 @@
+一、原ocr库的识别流程
+0.核心数据
+  图片：Mat->IplImage->OCR_IMAGE(OcrImage)
+  Mat是opencv的图数据结构；
+  IplImage是Intel的图像处理库的数据结构，包含在opencv代码中；
+  OCR_IMAGE是OCR库中的图片数据结构，存储宽度、高度、像素所占用bit数、每行像素数据指针数组；
+  OcrImage是OCR_IMAGE的子类，添加了一些浅拷贝、深拷贝和内存释放的成员函数；
+1.OcrEngine::Recog() 是OCR库的顶层函数，其他外部接口基本都是调用的这个函数，来完成识别；
+  在里面执行了：彩图转灰度图、探测图片倾斜角度
+2.OcrEngine::ConvertGray()
+  在里面执行了：彩图转灰度图、灰度图增强
+  XColorToGray()的核心是宏定义：#define XRGB2GRAY(r,g,b) (((b)*117 + (g)*601 + (r)*306) >> 10)
+  XEnhanceGrayImage()的核心是，获取图的平均亮度，然后重新计算图中点的亮度，使整张图尽量在亮度上分布在0-255的两端而不是某一段；
+3.OcrEngine::DetectAngle()
+  deskew.cpp中Ocr_DetectImageSkewAngle()，接收灰度图、单色图，若是单色图，转为灰度图，若是彩图则返回失败；转换完毕后，调用skewDetection()来实际执行角度检测；
+  skewDetection()，有800+行，（1）其前半部分，尝试划定一片区域，并将区域内图片缩放到一定大小，对大图使用了双线性插值（或降采样），然后做高斯平滑，再边缘检测
+                   1336行->1705行，声明各种宏定义、变量、判断出是否需要缩放，缩放到多大，对大图双线性插值；
+		                   使用的外部函数，主要是CannyEdgeDetection()和imageDownSamplingCXImageAverage_G()
+		   1706行->1715行，做高斯平滑，主要是grayImageGaussSmooth33()
+		   1716行->1722行，做边缘检测，主要是CannyEdgeDetection()
+		   1723行->1767行，无用代码
+		   1768行->1803行，将需要的图片，放大几倍，主要是get_n_times_image()
+		   1804行->1821行，debug代码
+		   1822行->2137行，根据宽高值的大小和其他信息确认的fg_type来执行角度计算，主要是skewAngleDetection_H()
+  

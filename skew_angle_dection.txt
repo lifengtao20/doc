@@ -1,0 +1,107 @@
+0.主逻辑函数
+  0.1主逻辑函数代码段解释
+  skewDetection()，有800+行，（1）其前半部分，尝试划定一片区域，并将区域内图片缩放到一定大小，对大图使用了双线性插值（或降采样），然后做高斯平滑，再边缘检测
+                   1336行->1705行，声明各种宏定义、变量、判断出是否需要缩放，缩放到多大，对大图双线性插值；
+		                   使用的外部函数，主要是CannyEdgeDetection()和imageDownSamplingCXImageAverage_G()
+		   1706行->1715行，做高斯平滑，主要是grayImageGaussSmooth33()
+		   1716行->1722行，做边缘检测，主要是CannyEdgeDetection()
+		   1723行->1767行，无用代码
+		   1768行->1803行，将需要的图片，放大几倍，主要是get_n_times_image()
+		   1804行->1821行，debug代码
+		   1822行->2137行，根据宽高值的大小和其他信息确认的fg_type来执行角度计算，主要是skewAngleDetection_H()
+  0.2主逻辑函数详解(参数角度)
+  参数：unsigned char const * const pUCharGrayImage, int const imageWidth,int const imageHeight, double * const pSkewAngle
+  局部变量：reV 返回的角度值，在一些情况下，会被赋值为1,直接goto到ERROR_OR_OUT，释放申请的内存和return reV；
+            1.如果图片的宽高中，比较大的，仍小于200（DOWN_SCALE_W_H）
+	    在MERGE_NEW的编译选项下
+            width	   ->imageWidth ；fd为0,n_times为1,width_merge和height_merge为图像宽高；boxcanny的四个顶点设置为整张图片；fg_type根据宽度大还是高度大，设置为203或247；
+	                                            大于200，宽大于高时，若比例大于4：1，height大于200，就设置heigth为固定值200（），width则缩放至相应等比例大小；
+						                                         height小于200，则设置height和width为原图的值；
+									若比例小于4:1时，height大于200，就设置height为固定值200，width则缩放至相应等比例大小；
+									                 height小于200，则设置height和width为原图的值，若比例小；
+							     高大于宽时，若比例大于3.3:1时，width大于200，就设置width为固定值200，height则缩放至相应等比例大小；
+							                                 width小于200，则设置height和width为原图的值；
+									若比例小于3.3:1时，width大于200，就设置width为固定值200，height则缩放至相应等比例大小；
+							                                 width小于200，则设置height和width为原图的值；
+	    height	  ->imageHeight
+	    width_merge   ->imageWidth
+	    height_merge  ->imageHeight
+	    n_times       ->1
+	    fg_type       ->203(宽大)或247(高大)
+	    fg_d          ->0
+	    boxCanny      ->图片范围
+	    pUChar_t      ->pUCharGrayImage
+	    在无MERGE_NEW编译选项下
+	    则无width_merge/height_merge/ntimes
+	    2.图片宽高任一个或全部大于200（DOWN_SCALE_W_H）
+	      2.1宽大于高
+	         2.1.1比例大于4:1
+		      2.1.1.1 较小的height大于200
+		              width            ->200*(imageWidth/imageHeight)
+		              height           ->200
+			      width_merge      ->width
+			      height_merge     ->height*N_TIMES_A（即2）
+			      ntimes           ->N_TIMES_A（即2）
+			      fg_type          ->10
+			      fd_d             ->1
+		      2.1.1.2 较小的height小于200
+		              width            ->imageWidth
+		              height           ->imageHeight
+			      width_merge      ->width
+			      height_merge     ->height*N_TIMES_A（即2）
+			      ntimes           ->N_TIMES_A（即2）
+			      fg_type          ->11
+			      fd_d             ->0
+			      pUchar_t         ->pUCharGrayImage
+		      2.1.2.1 width_merge大于MAX_IMAGE_ROI_W_H(即560)
+                              boxCanny         ->截取width_merge正中的一段（即缩放后图片的正中一段）:left为(width_merge-560)/2   right为width_merge+560
+		       	                         top为0,bottom为height-1
+			      it               ->为计算width_merge的临时变量
+		      2.1.2.2 width_merge小于MAX_IMAGE_ROI_W_H(即560)
+		              boxCanny         ->width_merge和heigth_merge确定的范围（即缩放后图片的全部区域）
+		 2.1.2比例小于4:1
+		      2.1.1.1 较小的height大于200
+		              width            ->200*(imageWidth/imageHeight)
+		              height           ->200
+			      width_merge      ->width
+			      height_merge     ->height*N_TIMES_A（即2）
+			      ntimes           ->N_TIMES_A
+			      fg_type          ->12
+			      fd_d             ->1
+		      2.1.1.2 较小的height小于200
+		              width            ->imageWidth
+		              height           ->imageHeight
+			      width_merge      ->width
+			      height_merge     ->height*N_TIMES_A（即2）
+			      ntimes           ->N_TIMES_A
+			      fg_type          ->13
+			      fd_d             ->0
+			      pUchar_t         ->pUCharGrayImage
+                              boxCanny         ->截取width_merge正中的一段（即缩放后图片的正中一段）:left为(width_merge-height_merge)/2   right为width_merge+height_merge
+		       	                         top为0,bottom为height-1
+			      it               ->为计算width_merge的临时变量
+	      2.2高大于宽
+	         2.1.1比例大于1:3.3
+	         2.1.1比例小于1:3.3
+	      2.3 对fd不为0,即需要缩放的图片，执行双线性插值（或降采样，根据现有编译选项是在用双线性插值）
+	          boxDown的四个点，为图片的的全范围
+		  缩放参数，由width和height来确定
+		  输出到pUCharDown
+		  pUchar_t        ->pUCharDown
+	    
+	    pUCharGauss  高斯
+	    pUCharCanny
+	    pUCharCanny_merged
+	    pUChar_t
+	    skewAngle
+	    skewAngle_abs
+	    int_v
+	    width_t
+	    height_t
+1.bilinearSamplingGrayFST()双线性插值函数
+  1.0 与只类似的函数还有：
+      bilinearSamplingRGBFST()，对彩图的处理函数，对比内部逻辑，会发现除了一个像素分配三个char来存储外，是一致的；
+      bilinearSamplingGrayFST()，因编译选项而不被编译的函数，和主要使用的函数同名，查看内容，发现也极其类似，应是改进后废弃的代码；
+  1.1 从函数的行上概述
+      194行->256行     声明各种变量，并检查传入的参数
+      257行->
