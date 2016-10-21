@@ -104,4 +104,38 @@
       bilinearSamplingGrayFST()，因编译选项而不被编译的函数，和主要使用的函数同名，查看内容，发现也极其类似，应是改进后废弃的代码；
   1.1 从函数的行上概述
       194行->256行     声明各种变量，并检查传入的参数
-      257行->
+      257行->290行     申请内存，用来存储需要计算的起始位置、步长和需要计算位置的map、输出的图片所占的内存；
+      291行->396行     根据map中记录的步长和map，计算双线性插值；
+  1.2 从局部变量的角度来看
+      参数：
+      unsigned char const * const pUCharGray, int const imageWidth, int const imageHeight, ROI const * const pROI_t, int const outImageWidth, int const outImageHeight, unsigned char * * const ppUChargrayOut
+      局部变量：
+	pUCharGray_b         ->
+	pUCharGray_t         ->
+	pUCharGray_s         ->
+	pUChargrayOut        ->
+	pUChargrayOut_t      ->
+	trackWidth           ->
+	trackHeight          -> 
+	xStep                -> 
+	yStep                -> 
+	xStep_t              -> 
+	yStep_t              -> 
+	pxMap                -> 
+	pxMap_t              -> 
+	pxPOS                -> 
+	pxPOS_t              -> 
+	int i                -> 
+	int j                -> 
+	pLinep               -> 
+	pLinep_t             -> 
+	fdx                  -> 
+	fdy                  -> 
+	int_dx               -> 
+	int_dy               -> 
+	imageWidth_1         -> 
+	imageHeight_1        -> 
+	i_x_0                -> 
+	i_x_1                -> 
+	int_temp             -> 
+	int_x_base           -> 

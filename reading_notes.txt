@@ -22,4 +22,22 @@
 		   1768行->1803行，将需要的图片，放大几倍，主要是get_n_times_image()
 		   1804行->1821行，debug代码
 		   1822行->2137行，根据宽高值的大小和其他信息确认的fg_type来执行角度计算，主要是skewAngleDetection_H()
-  
+4.XTextInfoInit()
+  设置
+5.Ocr_AdjustImageSkew()
+  位于：deskew.cpp
+  主要，在图为单色图的情况下，调用ConvertBitImg2ByteImg()，将图转为灰度图；调用rotateGrayImage()来进行倾斜校正；如果是输入是单色图的话，将校正完毕的数据，调用SimpleBinarize()转为单色图；
+  rotateGrayImage()，位于rotation.cpp，与之类似的函数，还有rotateGrayImage_Whole_t()和rotateGrayImage_Whole()，但是这两个函数并没有地方使用；
+  rotateGrayImage()，有328行，（1）根据传入的角度，计算x和y的各类角度参数（2）逐点的偏转；
+                     812行->1006行，根据传入的角度，计算各类角度参数;
+		     1007行->1088行，做偏转；
+		     1089行->1134行，复制到输出函数中，并释放临时申请的内存；
+6.Ocr_AdjustColorSkew()
+  位于：deskew.cpp
+  主要，只处理彩图，调用rotateColorImageSimple()来做倾斜校正；
+  rotateColorImageSimple()，位于deskew.cpp，
+  函数较短，暂时不做介绍
+7.OcrTextToConn()
+  位于：../../detect/text/XTextLocalization.cpp
+  主要，对图像二值化、获取图像的连通域、公式探测(CNN或非CNN)、，调用OcrBinarizeImageIntoLayers()、XIPConnComp()、OCR_ConnToExtractMathFormula_ByCnn()或OCR_ConnToExtractMathFormula()
+8.
