@@ -40,4 +40,15 @@
 7.OcrTextToConn()
   位于：../../detect/text/XTextLocalization.cpp
   主要，对图像二值化、获取图像的连通域、公式探测(CNN或非CNN)、，调用OcrBinarizeImageIntoLayers()、XIPConnComp()、OCR_ConnToExtractMathFormula_ByCnn()或OCR_ConnToExtractMathFormula()
-8.
+8.OcrTextLineLocalizationConn()
+  位于：detect/text/XTextLocalization.cpp
+  主要，做文本行定位，(1)使用CCA（典型相关分析（Canonical Correlation  Analysis））和条件随机场（conditional random field）先选择候选的文本块集合来，
+                      (2)画出经过一次筛选后的二值图，
+		      (3)使用CC linking合并连通域（注意CC为连通域缩写），得到更好的文本行信息
+		      (4)切割行到word，
+		      (5)从各个图层合并文本行
+		      (6)
+9.实际未用到的mser
+  在文本行在图片中占比低于一定程度时，重新倾斜校正，重新获取连通域，重新定位文本行，重新计算文本行比例；根据结果，选择原信息识别或新校正后的数据识别；
+  RecogText()，是主要的识别函数；
+
