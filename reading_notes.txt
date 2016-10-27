@@ -51,4 +51,14 @@
 9.实际未用到的mser
   在文本行在图片中占比低于一定程度时，重新倾斜校正，重新获取连通域，重新定位文本行，重新计算文本行比例；根据结果，选择原信息识别或新校正后的数据识别；
   RecogText()，是主要的识别函数；
+  9.1 OcrEngine::mser()   看上去分配了一些内存，实际上什么也没做；
+      OcrTextLineLocalizationCluster() 位于： detect/text/XTextLocalization.cpp，基于聚类的文本行定位；
+      OcrEngine::RecogText()
+  9.2 CheckTextDirect()
+      Ocr_AdjustImageSkew()
+      Ocr_AdjustColorSkew()
+      OcrTextToConn()
+      OcrTextLineLocalizationConn()
+      根据角度情况，使用新判断出的或旧的文本行执行OcrEngine::RecogText()
+10.释放各类分配的内存
 

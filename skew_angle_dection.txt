@@ -115,19 +115,19 @@
 	pUCharGray_s         ->
 	pUChargrayOut        ->
 	pUChargrayOut_t      ->
-	trackWidth           ->
-	trackHeight          -> 
-	xStep                -> 
-	yStep                -> 
-	xStep_t              -> 
+	trackWidth           -> 选定要缩放区域的宽度
+	trackHeight          -> 选定要缩放区域的高度
+	xStep                -> 要缩放区域的宽度/输出图片宽度，得出的双线性插值在x轴上的步长
+	yStep                -> 要缩放区域的宽度/输出图片宽度，得出的双线性插值在x轴上的步长
+	xStep_t              -> (0.0f - xStep/2.0f) - 0.5f
 	yStep_t              -> 
-	pxMap                -> 
-	pxMap_t              -> 
-	pxPOS                -> 
-	pxPOS_t              -> 
+	pxMap                -> 一段长度为（输出宽度×2）长的int指针
+	pxMap_t              -> 作为pxMap的临时变量
+	pxPOS                -> pxMap的最后一个位置
+	pxPOS_t              -> pxPos的临时变量
 	int i                -> 
 	int j                -> 
-	pLinep               -> 
+	pLinep               -> unsigned char*数组，数组长度为输入图片的height，的确是存储line指针用的；
 	pLinep_t             -> 
 	fdx                  -> 
 	fdy                  -> 
@@ -138,4 +138,4 @@
 	i_x_0                -> 
 	i_x_1                -> 
 	int_temp             -> 
-	int_x_base           -> 
+	int_x_base           -> 要缩放区域的x轴的左起始位置
