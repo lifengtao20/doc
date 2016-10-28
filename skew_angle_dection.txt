@@ -111,21 +111,21 @@
       unsigned char const * const pUCharGray, int const imageWidth, int const imageHeight, ROI const * const pROI_t, int const outImageWidth, int const outImageHeight, unsigned char * * const ppUChargrayOut
       局部变量：
 	pUCharGray_b         ->
-	pUCharGray_t         ->
+	pUCharGray_t         -> 灰度图的临时变量，为了给pLine_t的unsinged char*数组赋值为各行的行首的内存地址；
 	pUCharGray_s         ->
-	pUChargrayOut        ->
-	pUChargrayOut_t      ->
+	pUChargrayOut        -> 输出图片的内存地址，分配内存时，存指针的地址；
+	pUChargrayOut_t      -> 
 	trackWidth           -> 选定要缩放区域的宽度
 	trackHeight          -> 选定要缩放区域的高度
 	xStep                -> 要缩放区域的宽度/输出图片宽度，得出的双线性插值在x轴上的步长
 	yStep                -> 要缩放区域的宽度/输出图片宽度，得出的双线性插值在x轴上的步长
-	xStep_t              -> (0.0f - xStep/2.0f) - 0.5f
-	yStep_t              -> 
+	xStep_t              -> 步长移动后，得到临时变量，起始点(0.0f - xStep/2.0f) - 0.5f，每次移动xStep步长，来pxMap和pxPos
+	yStep_t              -> (pROI_t->top) + (0.0f - yStep/2.0f) - 0.5f
 	pxMap                -> 一段长度为（输出宽度×2）长的int指针
 	pxMap_t              -> 作为pxMap的临时变量
 	pxPOS                -> pxMap的最后一个位置
 	pxPOS_t              -> pxPos的临时变量
-	int i                -> 
+	int i                -> 遍历原图每一行，用的临时变量
 	int j                -> 
 	pLinep               -> unsigned char*数组，数组长度为输入图片的height，的确是存储line指针用的；
 	pLinep_t             -> 
