@@ -62,3 +62,27 @@
       根据角度情况，使用新判断出的或旧的文本行执行OcrEngine::RecogText()
 10.释放各类分配的内存
 
+二、新的识别流程
+1.OcrNewEngine::Recog() 是OCR新识别流程的主函数；
+  位于：engine/OcrNewEngine.cpp
+  主要，转灰度图，根据配置参数，调用OcrNewEngine::RecogByMSER()或OcrNewEngine::RecogByText() 进行识别；
+2.OcrEngine::ConvertGray()
+  在里面执行了：彩图转灰度图、灰度图增强
+  XColorToGray()的核心是宏定义：#define XRGB2GRAY(r,g,b) (((b)*117 + (g)*601 + (r)*306) >> 10)
+  XEnhanceGrayImage()的核心是，获取图的平均亮度，然后重新计算图中点的亮度，使整张图尽量在亮度上分布在0-255的两端而不是某一段；
+3.OcrNewEngine::RecogByMSER()和OcrNewEngine::RecogByText()
+  都是先探测角度，之后
+              3.1 OcrNewEngine::RecogByText()
+	          执行文本探测OcrNewEngine::DetectTextLine()，探测结果较好时，执行OcrNewEngine::RecogTextLine()识别；
+		                                              探测结果不好时，执行连通域角度探测OcrNewEngine::CheckTextDirect()，将角度信息加入识别信息中，再执行探测文本和识别；
+	      3.2 OcrNewEngine::RecogByMSER()
+	          执行文本探测OcrNewEngine::DetectTextCell()，识别并获取结果OcrNewEngine::textInfoToResult()，当结果平均分大于31时，调用OcrNewEngine::CheckTextDirect()识别并退出；
+		                                                                                                        小于等于31，连通域角度探测OcrNewEngine::CheckTextDirect(),将角度信息加入识别信息中，再执行探测文本和识别；
+4.两类文本探测函数OcrNewEngine::DetectTextLine()和OcrNewEngine::DetectTextCell()
+  4.1 OcrNewEngine::DetectTextLine()
+      对一、中介绍的OcrEngine::中4.至8.的封装；
+  4.2 OcrNewEngine::DetectTextCell()
+      前处理，和OcrNewEngine::DetectTextLine()一样，旋转灰度图，旋转彩图，生成连通域；
+      从文本行定位部分，变得不同，使用OcrNewEngine::OcrCCRectFilter()过滤CCR，使用OcrNewEngine::OcrTextCellToLine()使用文本块来生成行，使用OcrNewEngine::TextBinary()???，
+5.
+三、
